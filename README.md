@@ -177,11 +177,11 @@ Abrir en el navegador: **http://127.0.0.1:8000/**
 
 ---
 
-## =================================================
+## ====================================================
 
 ## Advertencia: Prettier rompe los templates Django
 
-## =================================================
+## ====================================================
 
 **No uses Prettier (ni ningún formatter HTML) sobre los archivos de `templates/`.**
 
