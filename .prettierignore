@@ -1,0 +1,2 @@
+# Ignorar todos los templates Django — Prettier rompe las etiquetas {% %} y {{ }}
+mi_proyecto/templates/**/*.html

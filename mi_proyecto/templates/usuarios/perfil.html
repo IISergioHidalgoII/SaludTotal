@@ -1,0 +1,45 @@
+{% extends 'base.html' %}{% block titulo %}Perfil — {{ usuario.username }}{% endblock %}{% block contenido %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-circle me-2"></i>Perfil de usuario
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <dl class="row">
+                    <dt class="col-sm-4 text-muted">Usuario</dt>
+                    <dd class="col-sm-8 fw-semibold">{{ usuario.username }}</dd>
+
+                    <dt class="col-sm-4 text-muted">Nombre</dt>
+                    <dd class="col-sm-8">{{ usuario.get_full_name|default:"—" }}</dd>
+
+                    <dt class="col-sm-4 text-muted">Email</dt>
+                    <dd class="col-sm-8">{{ usuario.email|default:"—" }}</dd>
+
+                    <dt class="col-sm-4 text-muted">Rol</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-secondary">{{ usuario.get_rol_display }}</span>
+                    </dd>
+
+                    <dt class="col-sm-4 text-muted">Miembro desde</dt>
+                    <dd class="col-sm-8">{{ usuario.date_joined|date:"d/m/Y" }}</dd>
+
+                    {% if usuario.bio %}
+                    <dt class="col-sm-4 text-muted">Bio</dt>
+                    <dd class="col-sm-8">{{ usuario.bio }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+            {% if usuario.is_staff %}
+            <div class="card-footer">
+                <a href="{% url 'admin:index' %}" class="btn btn-sm btn-outline-dark">
+                    <i class="bi bi-shield-lock me-1"></i>Panel de administración
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %} {% block titulo %}Eliminar Horario{% endblock %} {% block contenido %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <h2 class="mb-4">
+      <i class="bi bi-trash me-2 text-danger"></i>Eliminar Horario
+    </h2>
+
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">Fecha</span>
+            <strong>{{ agenda.fecha }}</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">Hora</span>
+            <strong>{{ agenda.hora_inicio }} — {{ agenda.hora_fin }}</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">Estado</span>
+            <strong>{{ agenda.get_estado_display }}</strong>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="text-muted mb-4">¿Confirmas que deseas eliminar este horario?</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-danger">
+          <i class="bi bi-trash me-2"></i>Sí, eliminar
+        </button>
+        <a
+          href="{% url 'citas:agenda_medico' %}"
+          class="btn btn-outline-secondary"
+        >
+          <i class="bi bi-arrow-left me-1"></i>Volver
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

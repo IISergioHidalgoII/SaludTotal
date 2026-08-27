@@ -1,0 +1,466 @@
+{% extends 'base.html' %}{% block titulo %}Agregar Horarios{% endblock %}{%block extra_css %}
+<style>
+  .grilla th,
+  .grilla td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 3px 4px;
+    white-space: nowrap;
+  }
+  .grilla th.col-hora {
+    width: 100px;
+    text-align: right;
+    padding-right: 10px;
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 0.82rem;
+  }
+  .grilla th.col-dia {
+    font-size: 0.83rem;
+    min-width: 80px;
+  }
+  .col-finde {
+    background: #f8f9fa;
+  }
+
+  /* Celda libre */
+  .celda-libre {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 34px;
+    border-radius: 6px;
+    background: #f1f3f5;
+    border: 2px dashed #ced4da;
+    cursor: pointer;
+    transition:
+      background 0.12s,
+      border-color 0.12s;
+    user-select: none;
+  }
+  .celda-libre:hover {
+    background: #dbe4ff;
+    border-color: #4c6ef5;
+  }
+  .celda-libre.marcada {
+    background: #d0ebff;
+    border: 2px solid #339af0;
+    color: #1971c2;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .celda-libre.marcada::after {
+    content: "✓";
+  }
+  /* Celda ya registrada (disponible) */
+  .celda-ok {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    min-height: 34px;
+    border-radius: 6px;
+    background: #d3f9d8;
+    border: 2px solid #40c057;
+    color: #2f9e44;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 2px 3px;
+  }
+  /* Celda ocupada (tiene cita) */
+  .celda-ocupada {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    min-height: 34px;
+    border-radius: 6px;
+    background: #fff3bf;
+    border: 2px solid #f59f00;
+    color: #e67700;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 2px 3px;
+  }
+  /* Celda libre sin salas disponibles */
+  .celda-sin-sala {
+    border-color: #ffa8a8 !important;
+    background: #fff5f5 !important;
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+  .celda-sin-sala:hover {
+    background: #ffe3e3 !important;
+    border-color: #ff6b6b !important;
+  }
+  /* Celda de día pasado */
+  .celda-pasada {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 34px;
+    border-radius: 6px;
+    background: #f1f3f5;
+    border: 2px dashed #dee2e6;
+    color: #adb5bd;
+    font-size: 0.8rem;
+    cursor: not-allowed;
+  }
+  .col-dia.col-pasada {
+    opacity: 0.45;
+  }
+  /* Bloque de 2 celdas consecutivas — visualmente unidas */
+  .grilla td.bloque-td-sup {
+    padding-bottom: 1px;
+  }
+  .grilla td.bloque-td-inf {
+    padding-top: 0;
+  }
+  .celda-libre.marcada.bloque-sup {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-color: #1971c2;
+  }
+  .celda-libre.marcada.bloque-inf {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: none;
+  }
+</style>
+{% endblock %} {% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-0"><i class="bi bi-grid me-2"></i>Agregar Horarios</h2>
+    <p class="text-muted small mb-0">
+      Marca las celdas grises que quieras habilitar y guarda.
+    </p>
+  </div>
+  <a
+    href="{% url 'citas:agenda_medico' %}"
+    class="btn btn-outline-secondary btn-sm"
+  >
+    <i class="bi bi-arrow-left me-1"></i>Volver
+  </a>
+</div>
+
+<!-- Navegación semana -->
+<div class="d-flex align-items-center gap-2 mb-3">
+  {% if semana_anterior >= hoy|date:"Y-m-d" %}
+  <a
+    href="?semana={{ semana_anterior }}"
+    class="btn btn-outline-secondary btn-sm"
+  >
+    <i class="bi bi-chevron-left"></i>
+  </a>
+  {% else %}
+  <button
+    class="btn btn-outline-secondary btn-sm"
+    disabled
+    title="No puedes ir a semanas pasadas"
+  >
+    <i class="bi bi-chevron-left"></i>
+  </button>
+  {% endif %}
+  <span class="fw-semibold">
+    {{ dias_semana.0|date:"d/m/Y" }} — {{ dias_semana.6|date:"d/m/Y" }}
+  </span>
+  <a
+    href="?semana={{ semana_siguiente }}"
+    class="btn btn-outline-secondary btn-sm"
+  >
+    <i class="bi bi-chevron-right"></i>
+  </a>
+</div>
+
+<!-- Leyenda -->
+<div class="d-flex flex-wrap gap-3 mb-3 small">
+  <span class="text-muted">
+    <span
+      class="celda-libre d-inline-flex me-1"
+      style="width: 18px; height: 18px; border-radius: 4px"
+    >
+    </span
+    >Libre</span
+  >
+  <span class="text-muted">
+    <span
+      class="celda-ok d-inline-flex me-1"
+      style="width: 18px; height: 18px; border-radius: 4px; font-size: 0.7rem"
+    >
+      ✓</span
+    >Ya registrado</span
+  >
+  <span class="text-muted">
+    <span
+      class="celda-ocupada d-inline-flex me-1"
+      style="width: 18px; height: 18px; border-radius: 4px; font-size: 0.7rem"
+    >
+      ●</span
+    >Con cita</span
+  >
+</div>
+
+<form method="post" id="form-grilla">
+  {% csrf_token %}
+  <input type="hidden" name="semana" value="{{ semana_str }}" />
+
+  <div class="table-responsive shadow-sm rounded border">
+    <table class="table table-bordered grilla mb-0 bg-white">
+      <thead class="table-light">
+        <tr>
+          <th class="col-hora"></th>
+          {% for cab in cabeceras %}
+          <th
+            class="col-dia {% if cab.fin_semana %}col-finde{% endif %} {% if cab.fecha_obj < hoy %}col-pasada{% endif %}"
+          >
+            {{ cab.label }}<br />
+            <span class="fw-normal text-muted">{{ cab.fecha }}</span>
+            {% if cab.fecha_obj < hoy %}<br /><span style="font-size: 0.7rem">
+              🔒</span
+            >{% endif %}
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in grilla %}
+        <tr>
+          <th class="col-hora">{{ fila.label }}</th>
+          {% for celda in fila.celdas %}
+          <td class="{% if forloop.counter0 >= 5 %}col-finde{% endif %}">
+            {% if celda.pasado %}
+            <span class="celda-pasada" title="Fecha pasada">—</span>
+            {% elif celda.estado == 'ocupado' %}
+            <span
+              class="celda-ocupada"
+              title="Con cita asignada{% if celda.sala %} • {{ celda.sala.nombre }}{% endif %}"
+            >
+              ●{% if celda.sala %}<br /><small
+                style="font-size: 0.65rem; font-weight: 400"
+              >
+                {{ celda.sala.nombre }}</small
+              >
+              {% endif %}</span
+            >
+            {% elif celda.estado == 'disponible' %}
+            <span
+              class="celda-ok"
+              title="Disponible{% if celda.sala %} • {{ celda.sala.nombre }}{% endif %}"
+            >
+              ✓{% if celda.sala %}<br /><small
+                style="font-size: 0.65rem; font-weight: 400"
+              >
+                {{ celda.sala.nombre }}</small
+              >
+              {% endif %}</span
+            >
+            {% else %} {% if celda.salas_libres == 0 %}
+            <label
+              class="celda-libre celda-sin-sala"
+              data-row="{{ forloop.parentloop.counter0 }}"
+              data-col="{{ forloop.counter0 }}"
+              title="Sin salas de consulta disponibles hoy"
+            >
+              <input
+                type="checkbox"
+                name="slot"
+                value="{{ celda.valor }}"
+                class="d-none"
+              />
+              <small style="font-size: 0.62rem; color: #c92a2a; line-height: 1"
+                >Sin<br />sala</small
+              >
+            </label>
+            {% else %}
+            <label
+              class="celda-libre"
+              data-row="{{ forloop.parentloop.counter0 }}"
+              data-col="{{ forloop.counter0 }}"
+              title="{% if celda.tiene_sala_hoy %}Ya tienes sala asignada para este día{% else %}{{ celda.salas_libres }} de {{ celda.total_salas }} sala{{ celda.salas_libres|pluralize:'s' }} libre{{ celda.salas_libres|pluralize:'s' }} hoy{% endif %}"
+            >
+              <input
+                type="checkbox"
+                name="slot"
+                value="{{ celda.valor }}"
+                class="d-none"
+              />
+            </label>
+            {% endif %} {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if salas %}
+  <div class="mb-3 mt-3">
+    <label for="sala_id" class="form-label fw-semibold">
+      <i class="bi bi-door-open me-1"></i>Sala de consulta
+    </label>
+    <select
+      name="sala_id"
+      id="sala_id"
+      class="form-select"
+      style="max-width: 320px"
+    >
+      {% for sala in salas %}
+      <option value="{{ sala.pk }}">
+        {{ sala.nombre }} ({{ sala.get_tipo_display }})
+      </option>
+      {% endfor %}
+    </select>
+    <small class="text-muted">
+      Se asignará a todos los horarios creados en esta sesión.</small
+    >
+  </div>
+  {% endif %}
+
+  <div class="d-flex gap-2 mt-2">
+    <button type="submit" class="btn btn-primary">
+      <i class="bi bi-check-lg me-1"></i>Guardar selección
+    </button>
+    <button type="button" class="btn btn-outline-secondary" id="btn-limpiar">
+      Limpiar
+    </button>
+    <span id="contador" class="align-self-center text-muted small ms-1">
+      0 seleccionados</span
+    >
+  </div>
+</form>
+{% endblock %} {% block extra_js %}
+<script>
+  const contador = document.getElementById("contador");
+
+  function actualizarContador() {
+    const n = document.querySelectorAll(".celda-libre input:checked").length;
+    contador.textContent =
+      n === 0 ? "" : `${n} seleccionado${n > 1 ? "s" : ""}`;
+  }
+
+  function setCelda(label, marcar) {
+    const check = label.querySelector("input");
+    if (!check) return;
+    check.checked = marcar;
+    label.classList.toggle("marcada", marcar);
+  }
+
+  // ── Visualización de bloques consecutivos (merge visual) ────────────
+  function aplicarBloques() {
+    document
+      .querySelectorAll(".celda-libre.bloque-sup, .celda-libre.bloque-inf")
+      .forEach((el) => el.classList.remove("bloque-sup", "bloque-inf"));
+    document
+      .querySelectorAll(".grilla td.bloque-td-sup, .grilla td.bloque-td-inf")
+      .forEach((td) => td.classList.remove("bloque-td-sup", "bloque-td-inf"));
+
+    const porCol = {};
+    document.querySelectorAll(".celda-libre.marcada").forEach((label) => {
+      const r = +label.dataset.row,
+        c = +label.dataset.col;
+      if (!porCol[c]) porCol[c] = [];
+      porCol[c].push({ r, label });
+    });
+    for (const col in porCol) {
+      const cells = porCol[col].sort((a, b) => a.r - b.r);
+      for (let i = 0; i < cells.length - 1; i++) {
+        if (cells[i + 1].r === cells[i].r + 1) {
+          cells[i].label.classList.add("bloque-sup");
+          cells[i + 1].label.classList.add("bloque-inf");
+          const tdSup = cells[i].label.closest("td");
+          const tdInf = cells[i + 1].label.closest("td");
+          if (tdSup) tdSup.classList.add("bloque-td-sup");
+          if (tdInf) tdInf.classList.add("bloque-td-inf");
+          i++;
+        }
+      }
+    }
+  }
+
+  // ── Drag con límite de 2 celdas en la misma columna ────────────────
+  let arrastrando = false;
+  let startRow = -1,
+    startCol = -1;
+  let modoMarcar = true;
+  let extraRow = -1,
+    extraPrevState = false;
+
+  document
+    .querySelectorAll(".celda-libre:not(.celda-sin-sala)")
+    .forEach((label) => {
+      label.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        arrastrando = true;
+        startRow = +label.dataset.row;
+        startCol = +label.dataset.col;
+        modoMarcar = !label.querySelector("input").checked;
+        extraRow = -1;
+        setCelda(label, modoMarcar);
+        aplicarBloques();
+        actualizarContador();
+      });
+
+      label.addEventListener("mouseover", () => {
+        if (!arrastrando) return;
+        const r = +label.dataset.row;
+        const c = +label.dataset.col;
+        // Solo misma columna, máx 1 fila de distancia
+        if (c !== startCol || Math.abs(r - startRow) > 1) return;
+
+        if (r === startRow) {
+          // Regresó al inicio — restaurar celda extra si la hay
+          if (extraRow !== -1) {
+            const extra = document.querySelector(
+              `.celda-libre[data-row="${extraRow}"][data-col="${startCol}"]`,
+            );
+            if (extra) setCelda(extra, extraPrevState);
+            extraRow = -1;
+          }
+        } else if (r !== extraRow) {
+          // Nueva celda adyacente — restaurar anterior extra si era distinta
+          if (extraRow !== -1) {
+            const prev = document.querySelector(
+              `.celda-libre[data-row="${extraRow}"][data-col="${startCol}"]`,
+            );
+            if (prev) setCelda(prev, extraPrevState);
+          }
+          extraPrevState = label.querySelector("input").checked;
+          extraRow = r;
+          setCelda(label, modoMarcar);
+        }
+        aplicarBloques();
+        actualizarContador();
+      });
+
+      label.addEventListener("click", (e) => e.preventDefault());
+    });
+
+  document.addEventListener("mouseup", () => {
+    arrastrando = false;
+    extraRow = -1;
+  });
+  document.addEventListener("mouseleave", () => {
+    arrastrando = false;
+    extraRow = -1;
+  });
+
+  document.getElementById("btn-limpiar").addEventListener("click", () => {
+    document.querySelectorAll(".celda-libre").forEach((label) => {
+      label.classList.remove("marcada", "bloque-sup", "bloque-inf");
+      const inp = label.querySelector("input");
+      if (inp) inp.checked = false;
+    });
+    document
+      .querySelectorAll(".grilla td.bloque-td-sup, .grilla td.bloque-td-inf")
+      .forEach((td) => td.classList.remove("bloque-td-sup", "bloque-td-inf"));
+    actualizarContador();
+  });
+</script>
+{% endblock %}

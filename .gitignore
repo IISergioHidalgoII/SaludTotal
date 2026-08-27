@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Cobertura y pruebas
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editores e IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
+~$*

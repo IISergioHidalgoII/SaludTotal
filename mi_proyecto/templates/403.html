@@ -1,0 +1,20 @@
+{% extends 'base.html' %}{% block titulo %}Acceso restringido{% endblock %}{% block contenido %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-5 text-center">
+    <i class="bi bi-lock-fill display-1 text-danger mb-3"></i>
+    <h2 class="fw-bold">No tienes acceso a esta sección</h2>
+    <p class="text-muted mt-3">
+      Si crees que deberías poder ver esta página, contacta al administrador del
+      sistema.
+    </p>
+    <div class="d-flex justify-content-center gap-2 mt-4">
+      <a href="javascript:history.back()" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Volver
+      </a>
+      <a href="{% url 'core:index' %}" class="btn btn-primary">
+        <i class="bi bi-house me-1"></i>Inicio
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

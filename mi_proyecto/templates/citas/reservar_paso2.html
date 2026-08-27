@@ -1,0 +1,44 @@
+{% extends 'base.html' %} {% block titulo %}Reservar Cita — Médico{% endblock %} {% block contenido %}
+<h2 class="mb-1"><i class="bi bi-calendar-plus me-2"></i>Reservar Cita</h2>
+<p class="text-muted mb-1">Paso 2 de 3 — Elige un médico</p>
+<p class="mb-4">
+  <a href="{% url 'citas:reservar_paso1' %}" class="text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i>Especialidad:
+    <strong>{{ especialidad.nombre }}</strong>
+  </a>
+</p>
+
+{% if medicos %}
+<div class="row g-3">
+  {% for medico in medicos %}
+  <div class="col-sm-6 col-md-4">
+    <a
+      href="{% url 'citas:reservar_paso3' medico.pk %}"
+      class="text-decoration-none">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="bi bi-person-badge me-2 text-success"></i>{{ medico.nombre }}
+          </h5>
+          <p class="card-text text-muted small">
+            {{ medico.especialidad.nombre }}
+          </p>
+          {% if medico.telefono %}
+          <p class="card-text text-muted small">
+            <i class="bi bi-telephone me-1"></i>{{ medico.telefono }}
+          </p>
+          {% endif %}
+        </div>
+        <div class="card-footer text-end bg-transparent border-0">
+          <span class="text-success small">Ver horarios →</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-warning">
+  <i class="bi bi-exclamation-triangle me-2"></i>No hay médicos disponibles para esta especialidad.
+</div>
+{% endif %} {% endblock %}

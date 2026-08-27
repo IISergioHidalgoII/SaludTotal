@@ -1,0 +1,35 @@
+{% extends 'base.html' %}{% block titulo %}Reservar Cita — Especialidad{% endblock %} {% block contenido %}
+<h2 class="mb-1"><i class="bi bi-calendar-plus me-2"></i>Reservar Cita</h2>
+<p class="text-muted mb-4">Paso 1 de 3 — Elige una especialidad</p>
+
+{% if especialidades %}
+<div class="row g-3">
+  {% for esp in especialidades %}
+  <div class="col-sm-6 col-md-4">
+    <a
+      href="{% url 'citas:reservar_paso2' esp.pk %}"
+      class="text-decoration-none">
+      <div
+        class="card h-100 shadow-sm border-0 bg-light text-dark hover-shadow">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="bi bi-heart-pulse me-2 text-primary"></i>{{ esp.nombre }}
+          </h5>
+          {% if esp.descripcion %}
+          <p class="card-text text-muted small">{{ esp.descripcion }}</p>
+          {% endif %}
+        </div>
+        <div class="card-footer text-end bg-transparent border-0">
+          <span class="text-primary small">Seleccionar →</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-warning">
+  <i class="bi bi-exclamation-triangle me-2"></i>No hay especialidades
+  disponibles por el momento.
+</div>
+{% endif %} {% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}{% block titulo %}Clínica Salud Total{% endblock %}{% block contenido %}
+<div class="px-4 py-5 text-center">
+  <i class="bi bi-hospital display-1 text-primary mb-3"></i>
+  <h1 class="display-5 fw-bold">Bienvenido a Clínica Salud Total</h1>
+  <p class="lead text-muted col-lg-6 mx-auto">
+    Sistema de gestión de consultas médicas en línea. Reserva, gestiona y
+    controla tus citas de forma simple y segura.
+  </p>
+
+  {% if not user.is_authenticated %}
+  <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+    <a href="{% url 'usuarios:login' %}" class="btn btn-primary btn-lg px-4">
+      <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar
+    </a>
+    <a
+      href="{% url 'usuarios:registro' %}"
+      class="btn btn-outline-secondary btn-lg px-4">
+      <i class="bi bi-person-plus me-2"></i>Registrarse
+    </a>
+  </div>
+  {% else %}
+  <div class="mt-4">
+    <a href="{% url 'core:dashboard' %}" class="btn btn-primary btn-lg">
+      <i class="bi bi-speedometer2 me-2"></i>Ir al Dashboard
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

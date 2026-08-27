@@ -1,0 +1,25 @@
+/* ==============================================
+   custom.css — Estilos personalizados
+   Añade aquí tu CSS para complementar Bootstrap.
+   Este archivo se carga en TODOS los templates.
+   ============================================== */
+
+
+/* ── Ejemplo: cambiar color del navbar ──────────────
+.navbar {
+    background-color: #2c3e50 !important;
+}
+*/
+
+/* ── Ejemplo: estilos para cards ────────────────────
+.card {
+    border-radius: 12px;
+}
+*/
+
+/* ── Ejemplo: color de botones ──────────────────────
+.btn-primary {
+    background-color: #your-brand-color;
+    border-color: #your-brand-color;
+}
+*/

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}{% block titulo %}Eliminar Ítem{% endblock %}{% block contenido %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmar eliminación
+                </h5>
+            </div>
+            <div class="card-body">
+                <p>¿Estás seguro de que deseas eliminar <strong>{{ item.nombre }}</strong>?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>Sí, eliminar
+                        </button>
+                        <a href="{% url 'core:item_lista' %}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

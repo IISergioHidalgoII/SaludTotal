@@ -1,0 +1,109 @@
+{% extends 'base.html' %}{% block titulo %}Historial — {{ paciente.nombre }}{% endblock %}{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-0">
+      <i class="bi bi-folder2-open me-2"></i>Historial de {{ paciente.nombre }}
+    </h2>
+    <p class="text-muted mb-0">
+      RUT: <strong>{{ paciente.rut }}</strong>
+      {% if paciente.telefono %}
+      <span class="ms-3"
+        ><i class="bi bi-telephone me-1"></i>{{ paciente.telefono }}</span>
+      {% endif %}
+    </p>
+  </div>
+  <a
+    href="{% url 'consultas:buscar_paciente' %}"
+    class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Nueva búsqueda
+  </a>
+</div>
+
+{% if paciente.antecedentes_medicos %}
+<div class="alert alert-warning d-flex align-items-start mb-4">
+  <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
+  <div>
+    <strong>Antecedentes médicos:</strong><br />
+    {{ paciente.antecedentes_medicos }}
+  </div>
+</div>
+{% endif %} {% if consultas %}
+<div class="row g-3">
+  {% for consulta in consultas %}
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div
+        class="card-header d-flex justify-content-between align-items-center">
+        <span>
+          <i class="bi bi-clipboard2-check me-2"></i>
+          <strong>{{ consulta.fecha_consulta }}</strong>
+          <span class="text-muted ms-2"
+            >— Dr(a). {{ consulta.cita.medico.nombre }}</span>
+          <span class="badge bg-secondary ms-2"
+            >{{ consulta.cita.medico.especialidad.nombre }}</span>
+        </span>
+        <div class="d-flex gap-2">
+          <a
+            href="{% url 'consultas:imprimir' consulta.pk %}"
+            target="_blank"
+            class="btn btn-sm btn-outline-success">
+            <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+          </a>
+          <a
+            href="{% url 'consultas:detalle' consulta.pk %}"
+            class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-eye me-1"></i>Ver detalle
+          </a>
+        </div>
+      </div>
+      <div class="card-body py-2">
+        <!-- Observaciones -->
+        {% if consulta.observaciones %}
+        <p class="mb-2 small">
+          <i class="bi bi-journal-text me-1 text-muted"></i>
+          {{ consulta.observaciones|truncatechars:150 }}
+        </p>
+        {% endif %}
+
+        <div class="row g-2">
+          <!-- Diagnósticos -->
+          <div class="col-md-6">
+            <div class="small text-muted fw-semibold mb-1">
+              <i class="bi bi-stethoscope me-1"></i>Diagnósticos
+            </div>
+            {% for diag in consulta.diagnosticos.all %}
+            <span class="badge bg-light text-dark border me-1 mb-1">
+              {% if diag.codigo_cie10 %}<span class="text-secondary">
+                {{ diag.codigo_cie10 }}</span>
+              — {% endif %} {{ diag.descripcion|truncatechars:40 }}
+            </span>
+            {% empty %}
+            <span class="text-muted small">Sin diagnósticos</span>
+            {% endfor %}
+          </div>
+          <!-- Prescripciones -->
+          <div class="col-md-6">
+            <div class="small text-muted fw-semibold mb-1">
+              <i class="bi bi-capsule me-1"></i>Prescripciones
+            </div>
+            {% for presc in consulta.prescripciones.all %}
+            <span class="badge bg-light text-dark border me-1 mb-1">
+              {{ presc.medicamento|truncatechars:30 }}
+              <span class="text-muted">{{ presc.dosis }}</span>
+            </span>
+            {% empty %}
+            <span class="text-muted small">Sin prescripciones</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+  <i class="bi bi-info-circle me-2"></i>
+  Este paciente no tiene consultas registradas en el sistema.
+</div>
+{% endif %} {% endblock %}

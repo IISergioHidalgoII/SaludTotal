@@ -1,0 +1,238 @@
+{% extends 'base.html' %} {% block titulo %}Dashboard{% endblock %} {% block contenido %}
+<h2 class="mb-1"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+<p class="text-muted mb-4">
+  Hola, <strong>{{ user.get_full_name|default:user.username }}</strong> —
+  <span class="badge bg-secondary">{{ user.get_rol_display }}</span>
+</p>
+
+<!-- Tarjetas de resumen -->
+<div class="row g-4 mb-4">
+  {% if user.rol == 'paciente' %}
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-calendar-check me-2"></i>Mis Citas
+        </h5>
+        <p class="card-text display-5 fw-bold">{{ total_citas }}</p>
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'citas:mis_citas' %}" class="text-white small">
+          Ver todas →</a
+        >
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-success h-100">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-calendar-plus me-2"></i>Nueva Cita
+        </h5>
+        <p class="card-text">Reserva un horario médico en línea.</p>
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'citas:reservar_paso1' %}" class="text-white small">
+          Reservar →</a
+        >
+      </div>
+    </div>
+  </div>
+
+  {% elif user.rol == 'medico' %}
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-warning h-100">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-hourglass-split me-2"></i>Solicitudes Pendientes
+        </h5>
+        <p class="card-text display-5 fw-bold">{{ citas_pendientes_count }}</p>
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'consultas:citas_medico' %}" class="text-dark small">
+          Confirmar o rechazar →</a
+        >
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-calendar-check me-2"></i>Citas Confirmadas
+        </h5>
+        <p class="card-text display-5 fw-bold">{{ citas_confirmadas_count }}</p>
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'consultas:citas_medico' %}" class="text-white small">
+          Ver citas →</a
+        >
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-success h-100">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-clipboard2-check me-2"></i>Consultas Realizadas
+        </h5>
+        <p class="card-text display-5 fw-bold">{{ citas_realizadas_count }}</p>
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'citas:agenda_medico' %}" class="text-white small">
+          Ver agenda →</a
+        >
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-secondary h-100">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-search me-2"></i>Buscar Paciente
+        </h5>
+        <p class="card-text">
+          Busca por RUT o nombre para ver el historial clínico.
+        </p>
+      </div>
+      <div class="card-footer">
+        <a
+          href="{% url 'consultas:buscar_paciente' %}"
+          class="text-white small"
+        >
+          Buscar →</a
+        >
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-info h-100">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-person-circle me-2"></i>Perfil
+        </h5>
+        <p class="card-text fw-semibold">{{ user.email }}</p>
+        <span class="badge bg-light text-dark">{{ user.get_rol_display }}</span>
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'usuarios:perfil' %}" class="text-white small">
+          Ver perfil →</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Actividad reciente -->
+<div class="card shadow-sm">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span
+      ><i class="bi bi-clock-history me-2"></i>
+      {% if user.rol == 'medico' %}Solicitudes y próximas citas{% else %}Citas
+      recientes{% endif %}
+    </span>
+    {% if user.rol == 'paciente' %}
+    <a href="{% url 'citas:reservar_paso1' %}" class="btn btn-sm btn-primary">
+      <i class="bi bi-plus-lg"></i> Nueva cita
+    </a>
+    {% elif user.rol == 'medico' %}
+    <a href="{% url 'consultas:citas_medico' %}" class="btn btn-sm btn-primary">
+      <i class="bi bi-clipboard2-pulse"></i> Ver todas
+    </a>
+    {% endif %}
+  </div>
+  <ul class="list-group list-group-flush">
+    {% if user.rol == 'paciente' %} {% for cita in citas_recientes %}
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center"
+    >
+      <span>
+        <i class="bi bi-calendar-event me-2 text-muted"></i>
+        {{ cita.agenda.fecha }} {{ cita.hora }} — {{ cita.medico.nombre }}
+      </span>
+      {% if cita.estado == 'confirmada' %}
+      <span class="badge bg-success">Confirmada</span>
+      {% elif cita.estado == 'cancelada' %}
+      <span class="badge bg-danger">Cancelada</span>
+      {% elif cita.estado == 'realizada' %}
+      <span class="badge bg-secondary">Realizada</span>
+      {% else %}
+      <span class="badge bg-warning text-dark">Pendiente</span>
+      {% endif %}
+    </li>
+    {% empty %}
+    <li class="list-group-item text-muted text-center py-3">
+      No tienes citas aún.
+      <a href="{% url 'citas:reservar_paso1' %}">¡Reserva la primera!</a>
+    </li>
+    {% endfor %} {% elif user.rol == 'medico' %}
+    <!-- Solicitudes pendientes primero -->
+    {% for cita in citas_solicitudes %}
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center"
+    >
+      <div>
+        <i class="bi bi-hourglass-split me-2 text-warning"></i>
+        <strong>{{ cita.agenda.fecha }}</strong>
+        <span class="ms-2 text-muted">{{ cita.hora }}</span>
+        <span class="ms-2">{{ cita.paciente.nombre }}</span>
+        {% if cita.agenda.sala %}
+        <span class="ms-2 badge bg-secondary" style="font-size: 0.72rem">
+          <i class="bi bi-door-open me-1"></i>{{ cita.agenda.sala.nombre }}
+        </span>
+        {% endif %}
+      </div>
+      <div class="d-flex gap-1">
+        <form method="post" action="{% url 'citas:confirmar_medico' cita.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-success py-0">
+            <i class="bi bi-check-lg"></i>
+          </button>
+        </form>
+        <form method="post" action="{% url 'citas:rechazar_medico' cita.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger py-0">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </form>
+      </div>
+    </li>
+    {% endfor %}
+    <!-- Citas confirmadas próximas -->
+    {% for cita in citas_proximas %}
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center"
+    >
+      <div>
+        <i class="bi bi-calendar-event me-2 text-muted"></i>
+        <strong>{{ cita.agenda.fecha }}</strong>
+        <span class="ms-2 text-muted">{{ cita.hora }}</span>
+        <span class="ms-2">{{ cita.paciente.nombre }}</span>
+        {% if cita.agenda.sala %}
+        <span class="ms-2 badge bg-secondary" style="font-size: 0.72rem">
+          <i class="bi bi-door-open me-1"></i>{{ cita.agenda.sala.nombre }}
+        </span>
+        {% endif %}
+      </div>
+      <a
+        href="{% url 'consultas:registrar' cita.pk %}"
+        class="btn btn-sm btn-outline-primary"
+      >
+        <i class="bi bi-pencil-square me-1"></i>Registrar
+      </a>
+    </li>
+    {% endfor %} {% if not citas_solicitudes and not citas_proximas %}
+    <li class="list-group-item text-muted text-center py-3">
+      No tienes citas pendientes ni confirmadas.
+      <a href="{% url 'citas:agenda_crear' %}">Agrega horarios.</a>
+    </li>
+    {% endif %} {% else %}
+    <li class="list-group-item text-muted text-center py-3">
+      Bienvenido al sistema de gestión de consultas médicas.
+    </li>
+    {% endif %}
+  </ul>
+</div>
+{% endblock %}

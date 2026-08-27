@@ -1,0 +1,80 @@
+{% extends 'base.html' %}{% block titulo %}Verificar cuenta{% endblock %}{% block contenido %}
+<div class="row justify-content-center mt-4">
+  <div class="col-md-5 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white text-center py-3">
+        <h5 class="mb-0">
+          <i class="bi bi-shield-lock me-2"></i>Verificación de email
+        </h5>
+      </div>
+      <div class="card-body p-4 text-center">
+        <!-- Ícono y descripción -->
+        <div class="mb-3">
+          <i
+            class="bi bi-envelope-at-fill text-primary"
+            style="font-size: 3rem"
+          ></i>
+        </div>
+        <p class="text-muted small mb-4">
+          Ingresa el código de <strong>6 dígitos</strong> que aparece en el mensaje de bienvenida.
+        </p>
+
+        <!-- Countdown -->
+        <div class="mb-3">
+          <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+            <i class="bi bi-clock me-1"></i>
+            Expira en <span id="countdown">{{ segundos_restantes }}</span>s
+          </span>
+        </div>
+
+        <!-- Formulario -->
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ form.codigo }} {% for error in form.codigo.errors %}
+            <div class="text-danger small mt-1">
+              <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+            </div>
+            {% endfor %}
+          </div>
+          <button
+            type="submit"
+            class="btn btn-success w-100"
+            id="btn-verificar">
+            <i class="bi bi-check2-circle me-1"></i>Verificar código
+          </button>
+        </form>
+
+        <hr class="my-3" />
+        <a href="{% url 'usuarios:registro' %}" class="text-muted small">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Volver a registrarme
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    let segundos = parseInt("{{ segundos_restantes }}", 10);
+    const display = document.getElementById("countdown");
+    const btn = document.getElementById("btn-verificar");
+
+    const intervalo = setInterval(() => {
+      segundos--;
+      if (segundos <= 0) {
+        clearInterval(intervalo);
+        display.textContent = "0";
+        btn.disabled = true;
+        btn.textContent = "Código expirado";
+        // Redirigir automáticamente al registro
+        setTimeout(() => {
+          window.location.href = "{% url 'usuarios:registro' %}";
+        }, 1500);
+      } else {
+        display.textContent = segundos;
+      }
+    }, 1000);
+  })();
+</script>
+{% endblock %}
