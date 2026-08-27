@@ -65,6 +65,10 @@ mi_proyecto/
 - XAMPP con MySQL/MariaDB corriendo en puerto **3307**(ajustar si usas otro puerto)
 - Cuenta Gmail con [contraseña de aplicación](https://myaccount.google.com/apppasswords) (para emails en este caso)
 
+```
+Crear Gmail → entrar a Cuenta de Google → Seguridad → activar Verificación en 2 pasos → buscar Contraseñas de aplicaciones → escribir un nombre para la aplicación → Crear → copiar la contraseña de 16 caracteres y usarla en la aplicación.
+```
+
 ### 1. Crear entorno virtual e instalar dependencias
 
 ```powershell
