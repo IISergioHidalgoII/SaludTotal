@@ -159,6 +159,10 @@ Abrir en el navegador: **http://127.0.0.1:8000/**
 
 ## Usuarios de prueba (entorno local)
 
+Estas son credenciales de ejemplo para una base de datos exclusivamente local.
+No deben reutilizarse en un despliegue ni corresponden a cuentas incluidas en
+el repositorio.
+
 | Usuario        | Contraseña      | Rol          |
 | -------------- | --------------- | ------------ |
 | `admin`        | `Admin1234!`    | Superusuario |
@@ -166,6 +170,30 @@ Abrir en el navegador: **http://127.0.0.1:8000/**
 | `dr.rojas`     | `Medico1234!`   | Médico       |
 | `dra.vega`     | `Medico1234!`   | Médico       |
 | `paciente1`    | `Paciente1234!` | Paciente     |
+
+---
+
+## Pruebas y verificaciones
+
+La suite usa SQLite en memoria y un backend de correo local, por lo que no
+modifica la base de datos MySQL ni envía mensajes reales:
+
+```powershell
+$env:DJANGO_SETTINGS_MODULE='mi_proyecto.settings_test'
+..\.venv\Scripts\python manage.py check
+..\.venv\Scripts\python manage.py makemigrations --check --dry-run
+..\.venv\Scripts\python manage.py test
+```
+
+GitHub Actions ejecuta estas comprobaciones automáticamente en cada cambio de
+la rama `main` y en cada pull request dirigido a ella.
+
+---
+
+## Capturas
+
+Las capturas de las pantallas principales se incorporarán al finalizar el
+proyecto.
 
 ---
 
